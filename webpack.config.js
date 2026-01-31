@@ -18,6 +18,8 @@ module.exports = (env, { mode = 'development' }) => ({
       'fast-deep-equal': path.resolve(__dirname, 'node_modules/fast-deep-equal'),
       // yjs expects deepFreeze from lib0/object; some lib0 versions don't export it
       'lib0/object': path.resolve(__dirname, 'src/shim-lib0-object.js'),
+      // block-editor expects 'edit' icon; @wordpress/icons 11.x exports 'pencil'
+      '@wordpress/icons': path.resolve(__dirname, 'src/shim-wordpress-icons.js'),
     },
     fallback: {
       fs: false,
@@ -55,4 +57,7 @@ module.exports = (env, { mode = 'development' }) => ({
     hot: true,
   },
   devtool: mode === 'development' ? 'eval-cheap-module-source-map' : 'source-map',
+  performance: {
+    hints: false,
+  },
 })

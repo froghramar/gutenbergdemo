@@ -32,7 +32,17 @@ function parsedToEditorBlocks(parsed: unknown[]): EditorBlock[] {
     attributes: b.attrs ?? {},
     innerBlocks: b.innerBlocks?.length
       ? parsedToEditorBlocks(b.innerBlocks)
-      : undefined,
+      : [],
+  }));
+}
+
+/** Ensure every block has innerBlocks as an array (block-editor reducer requires it). */
+function normalizeBlocks(blocks: EditorBlock[]): EditorBlock[] {
+  return blocks.map((b) => ({
+    ...b,
+    innerBlocks: Array.isArray(b.innerBlocks)
+      ? normalizeBlocks(b.innerBlocks)
+      : [],
   }));
 }
 
@@ -79,21 +89,23 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
 
   const updateBlocks = useCallback(
     (next: EditorBlock[]) => {
-      setBlocks(next);
-      onBlocksChange?.(next);
+      const normalized = normalizeBlocks(next);
+      setBlocks(normalized);
+      onBlocksChange?.(normalized);
     },
     [onBlocksChange]
   );
 
   const persistBlocks = useCallback(
     (next: EditorBlock[]) => {
-      setBlocks(next);
+      const normalized = normalizeBlocks(next);
+      setBlocks(normalized);
       try {
-        localStorage.setItem(STORAGE_KEY, serialize(next));
+        localStorage.setItem(STORAGE_KEY, serialize(normalized));
       } catch {
         // ignore
       }
-      onBlocksChange?.(next);
+      onBlocksChange?.(normalized);
     },
     [onBlocksChange]
   );
@@ -116,7 +128,7 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
       // #endregion
     >
       <BlockEditorProvider
-        value={blocks}
+        value={normalizeBlocks(blocks)}
         onInput={updateBlocks}
         onChange={persistBlocks}
         settings={defaultSettings}
