@@ -1,0 +1,139 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f0f0f0;
+}
+
+.app-header {
+  padding: 1rem 1.5rem;
+  background: #1e1e1e;
+  color: #fff;
+}
+
+.app-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.app-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.app-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: #fff;
+  border-right: 1px solid #ddd;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.post-meta-form h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.post-meta-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.post-meta-form input,
+.post-meta-form select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.post-meta-form input:focus,
+.post-meta-form select:focus {
+  outline: none;
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+}
+
+.export-actions {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.download-json {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: #2271b1;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.download-json:hover {
+  background: #135e96;
+}
+
+.app-editor {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.block-editor-canvas-wrap {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.block-editor-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.block-editor-sidebar {
+  width: 280px;
+  min-width: 280px;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+.block-editor-main {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+}
+
+/* Gutenberg editor canvas area */
+.block-editor-canvas-wrap .block-editor-block-list__layout {
+  padding: 1rem 0;
+}
+
+.block-editor-canvas-wrap .is-root-container {
+  max-width: 100%;
+}
