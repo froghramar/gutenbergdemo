@@ -2,12 +2,11 @@
   "name": "gutenbergdemo",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "webpack serve",
+    "build": "webpack --mode production",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "npx serve dist"
   },
   "overrides": {
     "react-autosize-textarea": {
@@ -32,14 +31,18 @@
     "@types/node": "^24.10.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^5.1.1",
+    "css-loader": "^7.1.2",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "html-webpack-plugin": "^5.6.4",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4",
-    "vite-plugin-node-polyfills": "^0.22.0"
+    "webpack": "^5.96.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.1.0"
   }
 }

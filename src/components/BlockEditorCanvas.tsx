@@ -4,8 +4,15 @@ import {
   BlockCanvas,
   BlockInspector,
 } from "../bootstrap-gutenberg";
+import { useRegistry } from "@wordpress/data";
 import { parse, serialize } from "@wordpress/blocks";
 import type { EditorBlock } from "../types/block";
+
+// #region agent log
+const LOG = (msg: string, data: Record<string, unknown>, hypothesisId: string) => {
+  fetch('http://127.0.0.1:7242/ingest/4c43da5b-e111-42d8-bec3-cb9fb53aaa55', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'BlockEditorCanvas.tsx', message: msg, data, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId }) }).catch(() => {});
+};
+// #endregion
 
 function generateClientId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -47,6 +54,15 @@ export interface BlockEditorCanvasProps {
 }
 
 export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
+  const registry = useRegistry();
+  // #region agent log
+  const hasRegistry = registry != null;
+  const hasSelect = typeof (registry as { select?: unknown })?.select === 'function';
+  const storeNames = registry && typeof (registry as { stores?: Record<string, unknown> }).stores === 'object' ? Object.keys((registry as { stores: Record<string, unknown> }).stores) : [];
+  const selectRef = (registry as { select?: unknown })?.select != null ? String((registry as { select: unknown }).select).slice(0, 80) : 'none';
+  LOG('BlockEditorCanvas useRegistry()', { hasRegistry, hasSelect, storeNames, storeCount: storeNames.length, selectRef }, 'H3');
+  LOG('BlockEditorCanvas registry', { registryType: typeof registry, selectRef }, 'H5');
+  // #endregion
   const [blocks, setBlocks] = useState<EditorBlock[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -86,7 +102,17 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
   }, []);
 
   return (
-    <div className="block-editor-canvas-wrap">
+    <div
+      className="block-editor-canvas-wrap"
+      // #region agent log
+      onMouseDownCapture={() => {
+        const hasR = registry != null;
+        const hasSel = typeof (registry as { select?: unknown })?.select === 'function';
+        const stores = registry && typeof (registry as { stores?: object }).stores === 'object' ? Object.keys((registry as { stores: Record<string, unknown> }).stores) : [];
+        LOG('click-time registry in scope', { hasRegistry: hasR, hasSelect: hasSel, storeCount: stores.length }, 'H6');
+      }}
+      // #endregion
+    >
       <BlockEditorProvider
         value={blocks}
         onInput={updateBlocks}
