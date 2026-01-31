@@ -9,9 +9,15 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "overrides": {
+    "react-autosize-textarea": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    }
+  },
   "dependencies": {
     "@wordpress/block-editor": "^14.3.0",
-    "@wordpress/block-library": "^4.3.0",
+    "@wordpress/block-library": "^9.39.0",
     "@wordpress/blocks": "^15.3.0",
     "@wordpress/components": "^28.3.0",
     "@wordpress/data": "^10.3.0",
