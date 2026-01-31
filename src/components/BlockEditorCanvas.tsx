@@ -4,8 +4,7 @@ import {
   BlockCanvas,
   BlockInspector,
 } from "@wordpress/block-editor";
-import { registerCoreBlocks } from "@wordpress/block-library";
-import { parse } from "@wordpress/blocks";
+import { parse, serialize } from "@wordpress/blocks";
 import type { EditorBlock } from "../types/block";
 
 function generateClientId(): string {
@@ -14,16 +13,20 @@ function generateClientId(): string {
 
 /** Convert parsed blocks (blockName, attrs) to editor format (name, attributes, clientId). */
 function parsedToEditorBlocks(parsed: unknown[]): EditorBlock[] {
-  return (parsed as { blockName?: string; attrs?: object; innerBlocks?: unknown[] }[]).map(
-    (b) => ({
-      clientId: generateClientId(),
-      name: b.blockName || "core/freeform",
-      attributes: b.attrs || {},
-      innerBlocks: b.innerBlocks?.length
-        ? parsedToEditorBlocks(b.innerBlocks)
-        : undefined,
-    })
-  );
+  return (
+    parsed as {
+      blockName?: string;
+      attrs?: Record<string, unknown>;
+      innerBlocks?: unknown[];
+    }[]
+  ).map((b) => ({
+    clientId: generateClientId(),
+    name: b.blockName || "core/freeform",
+    attributes: b.attrs ?? {},
+    innerBlocks: b.innerBlocks?.length
+      ? parsedToEditorBlocks(b.innerBlocks)
+      : undefined,
+  }));
 }
 
 import "@wordpress/components/build-style/style.css";
@@ -39,14 +42,6 @@ const defaultSettings = {
   __experimentalPreferredStyleVariations: {},
 };
 
-let coreBlocksRegistered = false;
-function ensureCoreBlocks() {
-  if (!coreBlocksRegistered) {
-    registerCoreBlocks();
-    coreBlocksRegistered = true;
-  }
-}
-
 export interface BlockEditorCanvasProps {
   onBlocksChange?: (blocks: EditorBlock[]) => void;
 }
@@ -56,7 +51,7 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = parse(stored) as { blockName?: string; attrs?: object; innerBlocks?: unknown[] }[];
+        const parsed = parse(stored) as { blockName?: string; attrs?: Record<string, unknown>; innerBlocks?: unknown[] }[];
         return parsedToEditorBlocks(parsed);
       }
     } catch {
@@ -64,8 +59,6 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
     }
     return [];
   });
-
-  ensureCoreBlocks();
 
   const updateBlocks = useCallback(
     (next: EditorBlock[]) => {
@@ -79,7 +72,6 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
     (next: EditorBlock[]) => {
       setBlocks(next);
       try {
-        const { serialize } = require("@wordpress/blocks");
         localStorage.setItem(STORAGE_KEY, serialize(next));
       } catch {
         // ignore
