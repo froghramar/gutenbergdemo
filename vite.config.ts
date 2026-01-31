@@ -19,11 +19,11 @@ export default defineConfig({
     alias: {
       fs: path.resolve(__dirname, 'src/stubs/fs.ts'),
       'node:fs': path.resolve(__dirname, 'src/stubs/fs.ts'),
+      // Force source-map-js to be bundled (Vite externalizes it for "browser compat")
+      'source-map-js': path.resolve(__dirname, 'node_modules/source-map-js/source-map.js'),
     },
   },
   optimizeDeps: {
-    // Force WordPress + postcss deps into one pre-bundle so (1) Node polyfills
-    // apply and (2) @wordpress/data stores register only once
     include: [
       '@wordpress/blocks',
       '@wordpress/data',
@@ -31,7 +31,21 @@ export default defineConfig({
       '@wordpress/block-library',
       '@wordpress/element',
       '@wordpress/components',
+      'postcss',
       'source-map-js',
     ],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        // Put all WordPress packages in one chunk so @wordpress/data stores
+        // register only once (avoids "Store already registered")
+        manualChunks(id) {
+          if (id.includes('node_modules/@wordpress/')) {
+            return 'wordpress'
+          }
+        },
+      },
+    },
   },
 })

@@ -1,10 +1,16 @@
 /**
- * Load Gutenberg packages and register core blocks once before the app renders.
- * This ensures @wordpress/data stores (core/blocks, core/block-editor, etc.)
- * are registered only once and avoids "Store already registered" errors when
- * using Vite code-splitting.
+ * Single entry for Gutenberg: load block-editor and block-library together
+ * so @wordpress/data stores register only once (avoids "Store already registered").
+ * All editor UI must import from here, not directly from @wordpress/block-editor.
  */
+import {
+  BlockEditorProvider,
+  BlockCanvas,
+  BlockInspector,
+} from '@wordpress/block-editor'
 import { registerCoreBlocks } from '@wordpress/block-library'
+
+export { BlockEditorProvider, BlockCanvas, BlockInspector }
 
 let registered = false
 export function ensureGutenbergBlocks() {

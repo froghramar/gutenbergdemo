@@ -3,7 +3,7 @@ import {
   BlockEditorProvider,
   BlockCanvas,
   BlockInspector,
-} from "@wordpress/block-editor";
+} from "../bootstrap-gutenberg";
 import { parse, serialize } from "@wordpress/blocks";
 import type { EditorBlock } from "../types/block";
 
