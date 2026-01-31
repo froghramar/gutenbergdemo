@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ensureGutenbergBlocks } from './bootstrap-gutenberg'
 import { RegistryBridge } from './RegistryBridge'
 import './index.css'
-import App from './App.tsx'
+import App from './App'
 
 // #region agent log
 const LOG = (msg: string, data: Record<string, unknown>, hypothesisId: string) => {

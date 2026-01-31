@@ -56,10 +56,11 @@ export interface BlockEditorCanvasProps {
 export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
   const registry = useRegistry();
   // #region agent log
+  const reg = registry as unknown as { select?: unknown; stores?: Record<string, unknown> };
   const hasRegistry = registry != null;
-  const hasSelect = typeof (registry as { select?: unknown })?.select === 'function';
-  const storeNames = registry && typeof (registry as { stores?: Record<string, unknown> }).stores === 'object' ? Object.keys((registry as { stores: Record<string, unknown> }).stores) : [];
-  const selectRef = (registry as { select?: unknown })?.select != null ? String((registry as { select: unknown }).select).slice(0, 80) : 'none';
+  const hasSelect = typeof reg?.select === 'function';
+  const storeNames = registry && typeof reg.stores === 'object' ? Object.keys(reg.stores) : [];
+  const selectRef = reg?.select != null ? String(reg.select).slice(0, 80) : 'none';
   LOG('BlockEditorCanvas useRegistry()', { hasRegistry, hasSelect, storeNames, storeCount: storeNames.length, selectRef }, 'H3');
   LOG('BlockEditorCanvas registry', { registryType: typeof registry, selectRef }, 'H5');
   // #endregion
@@ -106,9 +107,10 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
       className="block-editor-canvas-wrap"
       // #region agent log
       onMouseDownCapture={() => {
+        const r = registry as unknown as { select?: unknown; stores?: Record<string, unknown> };
         const hasR = registry != null;
-        const hasSel = typeof (registry as { select?: unknown })?.select === 'function';
-        const stores = registry && typeof (registry as { stores?: object }).stores === 'object' ? Object.keys((registry as { stores: Record<string, unknown> }).stores) : [];
+        const hasSel = typeof r?.select === 'function';
+        const stores = registry && typeof r.stores === 'object' ? Object.keys(r.stores) : [];
         LOG('click-time registry in scope', { hasRegistry: hasR, hasSelect: hasSel, storeCount: stores.length }, 'H6');
       }}
       // #endregion

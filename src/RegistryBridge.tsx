@@ -17,9 +17,10 @@ export function RegistryBridge({ children }: { children: ReactNode }) {
   const registry = useRegistry()
   // #region agent log
   const hasRegistry = registry != null;
-  const hasSelect = typeof (registry as { select?: unknown })?.select === 'function';
-  const storeNames = registry && typeof (registry as { stores?: Record<string, unknown> }).stores === 'object' ? Object.keys((registry as { stores: Record<string, unknown> }).stores) : [];
-  const selectRef = (registry as { select?: unknown })?.select != null ? String((registry as { select: unknown }).select).slice(0, 80) : 'none';
+  const reg = registry as unknown as { select?: unknown; stores?: Record<string, unknown> };
+  const hasSelect = typeof reg?.select === 'function';
+  const storeNames = registry && typeof reg.stores === 'object' ? Object.keys(reg.stores) : [];
+  const selectRef = reg?.select != null ? String(reg.select).slice(0, 80) : 'none';
   LOG('RegistryBridge useRegistry()', { hasRegistry, hasSelect, storeNames, storeCount: storeNames.length, selectRef }, 'H1');
   LOG('RegistryBridge registry identity', { registryType: typeof registry, selectRef }, 'H2');
   // #endregion
