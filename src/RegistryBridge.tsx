@@ -7,22 +7,7 @@
 import type { ReactNode } from 'react'
 import { useRegistry, RegistryProvider } from '@wordpress/data'
 
-// #region agent log
-const LOG = (msg: string, data: Record<string, unknown>, hypothesisId: string) => {
-  fetch('http://127.0.0.1:7242/ingest/4c43da5b-e111-42d8-bec3-cb9fb53aaa55', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'RegistryBridge.tsx', message: msg, data, timestamp: Date.now(), sessionId: 'debug-session', hypothesisId }) }).catch(() => {});
-};
-// #endregion
-
 export function RegistryBridge({ children }: { children: ReactNode }) {
   const registry = useRegistry()
-  // #region agent log
-  const hasRegistry = registry != null;
-  const reg = registry as unknown as { select?: unknown; stores?: Record<string, unknown> };
-  const hasSelect = typeof reg?.select === 'function';
-  const storeNames = registry && typeof reg.stores === 'object' ? Object.keys(reg.stores) : [];
-  const selectRef = reg?.select != null ? String(reg.select).slice(0, 80) : 'none';
-  LOG('RegistryBridge useRegistry()', { hasRegistry, hasSelect, storeNames, storeCount: storeNames.length, selectRef }, 'H1');
-  LOG('RegistryBridge registry identity', { registryType: typeof registry, selectRef }, 'H2');
-  // #endregion
   return <RegistryProvider value={registry as never}>{children}</RegistryProvider>
 }
