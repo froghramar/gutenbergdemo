@@ -7,10 +7,11 @@ import {
   BlockEditorProvider,
   BlockCanvas,
   BlockInspector,
+  Inserter,
 } from '@wordpress/block-editor'
 import { registerCoreBlocks } from '@wordpress/block-library'
 
-export { BlockEditorProvider, BlockCanvas, BlockInspector }
+export { BlockEditorProvider, BlockCanvas, BlockInspector, Inserter }
 
 let registered = false
 export function ensureGutenbergBlocks() {

@@ -3,33 +3,12 @@ import {
   BlockEditorProvider,
   BlockCanvas,
   BlockInspector,
+  Inserter,
 } from "../bootstrap-gutenberg";
 import { parse, serialize } from "@wordpress/blocks";
 import type { EditorBlock } from "../types/block";
 
-function generateClientId(): string {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-/** Convert parsed blocks (blockName, attrs) to editor format (name, attributes, clientId). */
-function parsedToEditorBlocks(parsed: unknown[]): EditorBlock[] {
-  return (
-    parsed as {
-      blockName?: string;
-      attrs?: Record<string, unknown>;
-      innerBlocks?: unknown[];
-    }[]
-  ).map((b) => ({
-    clientId: generateClientId(),
-    name: b.blockName || "core/freeform",
-    attributes: b.attrs ?? {},
-    innerBlocks: b.innerBlocks?.length
-      ? parsedToEditorBlocks(b.innerBlocks)
-      : [],
-  }));
-}
-
-/** Ensure every block has innerBlocks as an array (block-editor reducer requires it). */
+/** Ensure every block has innerBlocks as an array and preserve originalContent (block-editor validation needs it). */
 function normalizeBlocks(blocks: EditorBlock[]): EditorBlock[] {
   return blocks.map((b) => ({
     ...b,
@@ -56,19 +35,36 @@ export interface BlockEditorCanvasProps {
   onBlocksChange?: (blocks: EditorBlock[]) => void;
 }
 
-export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
-  const [blocks, setBlocks] = useState<EditorBlock[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = parse(stored) as { blockName?: string; attrs?: Record<string, unknown>; innerBlocks?: unknown[] }[];
-        return parsedToEditorBlocks(parsed);
-      }
-    } catch {
-      // ignore
+function loadBlocksFromStorage(): EditorBlock[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored?.trim()) return [];
+    // parse() returns editor-shaped blocks (name, attributes, innerBlocks, clientId, originalContent).
+    // Use them directly so originalContent is preserved; validation compares it to save output.
+    let parsed = parse(stored) as EditorBlock[];
+    if (parsed.length === 0 && stored.trim().length > 0) {
+      // Stored content may be raw HTML (e.g. from an old save); treat as one freeform block.
+      parsed = parse(
+        `<!-- wp:freeform -->\n${stored.trim()}\n<!-- /wp:freeform -->`
+      ) as EditorBlock[];
     }
+    return normalizeBlocks(parsed);
+  } catch {
     return [];
-  });
+  }
+}
+
+export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
+  const [blocks, setBlocks] = useState<EditorBlock[]>([]);
+
+  // Load from localStorage after mount so block types are registered before parse() runs.
+  useEffect(() => {
+    const loaded = loadBlocksFromStorage();
+    if (loaded.length > 0) {
+      setBlocks(loaded);
+      onBlocksChange?.(loaded);
+    }
+  }, [onBlocksChange]);
 
   const updateBlocks = useCallback(
     (next: EditorBlock[]) => {
@@ -93,10 +89,6 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
     [onBlocksChange]
   );
 
-  useEffect(() => {
-    onBlocksChange?.(blocks);
-  }, []);
-
   return (
     <div className="block-editor-canvas-wrap">
       <BlockEditorProvider
@@ -110,7 +102,12 @@ export function BlockEditorCanvas({ onBlocksChange }: BlockEditorCanvasProps) {
             <BlockInspector />
           </div>
           <div className="block-editor-main">
-            <BlockCanvas height="100%" />
+            <div className="block-editor-toolbar">
+              <Inserter rootClientId={null} />
+            </div>
+            <div className="block-editor-canvas-area">
+              <BlockCanvas height="100%" />
+            </div>
           </div>
         </div>
       </BlockEditorProvider>
